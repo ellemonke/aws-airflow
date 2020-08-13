@@ -13,8 +13,6 @@ default_args = {
     'owner': 'udacity',
     'depends_on_past': False,    
     'start_date': datetime(2019, 1, 12),
-    'email': ['ellemonke@gmail.com'],
-    'email_on_failure': False,
     'email_on_retry': False,
     'retries': 3,
     'retry_delay': timedelta(minutes=5)
@@ -31,12 +29,22 @@ start_operator = DummyOperator(task_id='Begin_execution',  dag=dag)
 
 stage_events_to_redshift = StageToRedshiftOperator(
     task_id='Stage_events',
-    dag=dag
+    dag=dag,
+    table="staging_events",
+    redshift_conn_id="redshift",
+    aws_credentials_id="aws_credentials",
+    s3_bucket="udacity-dend",
+    s3_key="log-data/2018/11/2018-11-01-events.json"
 )
 
 stage_songs_to_redshift = StageToRedshiftOperator(
     task_id='Stage_songs',
-    dag=dag
+    dag=dag,
+    table="staging_songs",
+    redshift_conn_id="redshift",
+    aws_credentials_id="aws_credentials",
+    s3_bucket="udacity-dend",
+    s3_key="song-data/A/A/A/TRAAABD128F429CF47.json"
 )
 
 load_songplays_table = LoadFactOperator(
