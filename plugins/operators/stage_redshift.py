@@ -11,8 +11,8 @@ class StageToRedshiftOperator(BaseOperator):
         FROM '{}'
         ACCESS_KEY_ID '{}'
         SECRET_ACCESS_KEY '{}'
-        IGNOREHEADER {}
-        DELIMITER '{}'
+        region 'us-west-2' 
+        format as json 'auto'
     """
 
     @apply_defaults
@@ -22,8 +22,6 @@ class StageToRedshiftOperator(BaseOperator):
                  table="",
                  s3_bucket="",
                  s3_key="",
-                 delimiter=",",
-                 ignore_headers=1,
                  *args, **kwargs):
 
         super(StageToRedshiftOperator, self).__init__(*args, **kwargs)
@@ -31,8 +29,6 @@ class StageToRedshiftOperator(BaseOperator):
         self.redshift_conn_id = redshift_conn_id
         self.s3_bucket = s3_bucket
         self.s3_key = s3_key
-        self.delimiter = delimiter
-        self.ignore_headers = ignore_headers
         self.aws_credentials_id = aws_credentials_id
 
     def execute(self, context):
@@ -44,17 +40,15 @@ class StageToRedshiftOperator(BaseOperator):
         self.log.info(self.s3_bucket)
         self.log.info(self.s3_key)
 
-#         self.log.info("Copying data from S3 to Redshift")
-#         rendered_key = self.s3_key.format(**context)
-#         s3_path = "s3://{}/{}".format(self.s3_bucket, rendered_key)
-#         formatted_sql = S3ToRedshiftOperator.copy_sql.format(
-#             self.table,
-#             s3_path,
-#             credentials.access_key,
-#             credentials.secret_key,
-#             self.ignore_headers,
-#             self.delimiter
-#         )
-#         redshift.run(formatted_sql)
-#         self.log.info("Data copied")
+        self.log.info("Copying data from S3 to Redshift")
+        rendered_key = self.s3_key.format(**context)
+        s3_path = "s3://{}/{}".format(self.s3_bucket, rendered_key)
+        formatted_sql = StageToRedshiftOperator.copy_sql.format(
+            self.table,
+            s3_path,
+            credentials.access_key,
+            credentials.secret_key,
+        )
+        redshift.run(formatted_sql)
+        self.log.info("Data copied")
 
