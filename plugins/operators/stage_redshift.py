@@ -44,10 +44,6 @@ class StageToRedshiftOperator(BaseOperator):
         self.log.info(self.s3_bucket)
         self.log.info(self.s3_key)
 
-        self.log.info("Clearing data from destination Redshift table")
-        redshift.run("DROP TABLE IF EXISTS {}".format(self.table))
-        self.log.info("Data cleared")
-
 #         self.log.info("Copying data from S3 to Redshift")
 #         rendered_key = self.s3_key.format(**context)
 #         s3_path = "s3://{}/{}".format(self.s3_bucket, rendered_key)
