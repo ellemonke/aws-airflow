@@ -1,22 +1,15 @@
 class SqlQueries:
     songplay_table_insert = ("""
-        SELECT
-                md5(events.sessionid || events.start_time) songplay_id,
-                events.start_time, 
-                events.userid, 
-                events.level, 
-                songs.song_id, 
-                songs.artist_id, 
-                events.sessionid, 
-                events.location, 
-                events.useragent
-                FROM (SELECT TIMESTAMP 'epoch' + ts/1000 * interval '1 second' AS start_time, *
-            FROM staging_events
-            WHERE page='NextSong') events
-            LEFT JOIN staging_songs songs
-            ON events.song = songs.title
-                AND events.artist = songs.artist_name
-                AND events.length = songs.duration
+        SELECT e.ts as start_time,
+            e.userId as user_id,
+            e.level as level,
+            s.song_id as song_id,
+            s.artist_id as artist_id,
+            e.sessionId as session_id,
+            e.location as location,
+            e.userAgent as user_agent
+        FROM staging_events e
+        JOIN staging_songs s ON (e.song = s.title AND e.artist = s.artist_name)
     """)
 
     user_table_insert = ("""
